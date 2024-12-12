@@ -44,6 +44,21 @@
       color: var(--foreground);
       background: var(--background);
     }
+    div { 
+      color: var(--foreground);
+      background: var(--background);
+    }
+    
+     rhap_progress-container {
+color: white; 
+     }
+
+
+    
+    main{
+      color: var(--foreground);
+      background: var(--background);
+    }
   }
 }
 
