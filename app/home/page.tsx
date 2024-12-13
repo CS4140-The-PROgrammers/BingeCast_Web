@@ -115,7 +115,7 @@ export default function HomePage() {
             {recentlyViewed.length > 0 && (
                 <section className="py-16 bg-gray-200">
                     <div className="container mx-auto text-center">
-                        <h2 className="text-4xl font-bold mb-10">Jump in!</h2>
+                        <h2 className="text-4xl font-bold mb-10">Jump in! (News Mode)</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-4">
                             {recentlyViewed.map((feed, index) => (
                                 <a

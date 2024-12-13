@@ -7,8 +7,9 @@ import {
   import { JWT } from "next-auth/jwt";
   
   declare module "next-auth" {
+    debug:true;
     interface Session extends SessionInfo {}
-  
+    
     interface User extends LoginResponse {}
   }
   
