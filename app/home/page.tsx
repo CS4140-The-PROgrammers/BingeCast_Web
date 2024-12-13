@@ -13,7 +13,7 @@ interface Podcast {
     image: string | null;
 }
 
-export default function Page() {
+export default function HomePage() {
     const [rssFeeds, setRssFeeds] = useState<Podcast[]>([]);
     const [recentlyViewed, setRecentlyViewed] = useState<Podcast[]>([]);
     const [rssInput, setRssInput] = useState('');
@@ -23,12 +23,8 @@ export default function Page() {
         const savedFeeds = localStorage.getItem("rssFeeds");
         const savedRecentlyViewed = localStorage.getItem("recentlyViewed");
 
-        if (savedFeeds) {
-            setRssFeeds(JSON.parse(savedFeeds));
-        }
-        if (savedRecentlyViewed) {
-            setRecentlyViewed(JSON.parse(savedRecentlyViewed).slice(0, 3)); // Limit to 3 items
-        }
+        if (savedFeeds) setRssFeeds(JSON.parse(savedFeeds));
+        if (savedRecentlyViewed) setRecentlyViewed(JSON.parse(savedRecentlyViewed).slice(0, 3));
     }, []);
 
     // Save RSS feeds to localStorage whenever they change
@@ -41,58 +37,57 @@ export default function Page() {
         localStorage.setItem("recentlyViewed", JSON.stringify(recentlyViewed));
     }, [recentlyViewed]);
 
-    // Fetch podcast metadata (name and image) from the RSS feed
+    // Fetch podcast metadata from the RSS feed using the server-side API
     const fetchPodcastMetadata = async (url: string): Promise<Podcast> => {
-        try {
-            const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
-            const response = await fetch(proxyUrl);
+        if (!url) {
+            console.error("RSS feed URL is empty.");
+            return { url, name: "Invalid Feed", image: null };
+        }
 
-            // Log response status
-            if (!response.ok) {
-                console.error(`Failed to fetch feed. HTTP status: ${response.status}`);
-                throw new Error(`Failed to fetch feed: ${response.statusText}`);
-            }
+        try {
+            // Use the server-side API to fetch the RSS feed
+            const apiUrl = `/api/fetch-rss?url=${encodeURIComponent(url)}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`Failed to fetch RSS feed. Status: ${response.status}`);
 
             const data = await response.text();
-            console.log("Fetched raw RSS data:", data); // Debugging
-
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(data, "text/xml");
 
-            // Check for XML parsing errors
-            if (xmlDoc.querySelector("parsererror")) {
-                console.error("XML parsing error:", xmlDoc.querySelector("parsererror")?.textContent);
-                throw new Error("Invalid XML structure.");
-            }
+            if (xmlDoc.querySelector("parsererror")) throw new Error("Invalid XML structure in RSS feed.");
 
-            // Extract podcast title
             const title =
-                xmlDoc.querySelector("channel > title")?.textContent ||
-                xmlDoc.querySelector("title")?.textContent ||
-                "Unknown Podcast";
+                xmlDoc.querySelector("channel > title")?.textContent || "Unknown Podcast";
 
-            // Extract podcast image
             const image =
-                xmlDoc.querySelector("channel > itunes\\:image")?.getAttribute("href") || // Channel-level image
-                xmlDoc.querySelector("channel > image > url")?.textContent || // Legacy image tag
-                xmlDoc.querySelector("item > itunes\\:image")?.getAttribute("href") || // Episode-level fallback
-                xmlDoc.querySelector("item > media\\:thumbnail")?.getAttribute("url") || // Thumbnail fallback
+                xmlDoc.querySelector("channel > itunes\\:image")?.getAttribute("href") ||
+                xmlDoc.querySelector("channel > image > url")?.textContent ||
+                xmlDoc.querySelector("item > itunes\\:image")?.getAttribute("href") ||
+                xmlDoc.querySelector("item > media\\:thumbnail")?.getAttribute("url") ||
                 null;
 
             return { url, name: title, image };
         } catch (error) {
-            console.error("Error fetching podcast metadata:", error);
-            return { url, name: "Unknown Podcast", image: null };
+            console.error("Error fetching podcast metadata via API:", error);
+            return { url, name: "Invalid Feed", image: null };
         }
     };
 
     // Handle adding a new feed
     const handleAddFeed = async () => {
-        if (rssInput.trim()) {
-            const newFeed = await fetchPodcastMetadata(rssInput.trim());
-            setRssFeeds([...rssFeeds, newFeed]);
-            setRssInput(''); // Clear the input field after adding
+        if (!rssInput.trim()) {
+            alert("Please enter a valid RSS feed URL.");
+            return;
         }
+
+        const newFeed = await fetchPodcastMetadata(rssInput.trim());
+        if (newFeed.name === "Invalid Feed") {
+            alert("Failed to fetch RSS feed. Please check the URL.");
+            return;
+        }
+
+        setRssFeeds((prevFeeds) => [...prevFeeds, newFeed]);
+        setRssInput(''); // Clear the input field
     };
 
     // Handle viewing a podcast (add to recently viewed)
@@ -105,12 +100,11 @@ export default function Page() {
 
     // Handle removing a podcast
     const handleRemovePodcast = (url: string) => {
-        setRssFeeds(rssFeeds.filter((feed) => feed.url !== url));
+        setRssFeeds((prevFeeds) => prevFeeds.filter((feed) => feed.url !== url));
     };
 
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Hero Section */}
             <Header />
             <section className="bg-blue-600 text-white text-center py-20">
                 <h1 className="text-5xl font-bold mb-4">Welcome back!</h1>
@@ -148,7 +142,6 @@ export default function Page() {
             <section className="py-16 bg-gray-200">
                 <div className="container mx-auto text-center">
                     <h2 className="text-4xl font-bold mb-10">Your Podcasts</h2>
-
                     <List unstyled className="divide-y divide-gray-200 dark:divide-gray-700">
                         {rssFeeds.map((feed, index) => (
                             <List.Item key={index} className="pb-3 sm:pb-4">
@@ -176,7 +169,6 @@ export default function Page() {
                                 </div>
                             </List.Item>
                         ))}
-
                         <List.Item className="pb-0 pt-3 sm:pt-4">
                             <div className="flex items-center space-x-4">
                                 <TextInput
@@ -196,8 +188,6 @@ export default function Page() {
                     </List>
                 </div>
             </section>
-
-            {/* Footer Section */}
             <Footer />
         </div>
     );
