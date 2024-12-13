@@ -1,58 +1,84 @@
 "use client";
-import React, { useState } from 'react';
-import { TextInput, Button } from 'flowbite-react';
 
-export default function SignUpPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+import Button from "../components/atoms/Button";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import FormInput from "../components/form/FormInput";
+import { signIn } from "next-auth/react";
+import useSignUp, { SignUpParams } from "../hooks/useSignUp";
+import { toast } from "react-toastify";
 
-  const handleSignUp = async (event: any) => {
-    event.preventDefault();
-    // Handle sign-up logic here
-    if (password === confirmPassword) {
-      console.log('Signing up with:', email, password);
-    } else {
-      console.error('Passwords do not match');
+const SignUp: React.FC = () => {
+  const schema = yup.object().shape({
+    username: yup.string().nullable().required("Please input username"),
+    password: yup.string().nullable().required("Please input password"),
+    confirmPassword: yup
+      .string()
+      .nullable()
+      .oneOf([yup.ref("password"), null], "Passwords must match")
+      .required("Please input confirm password"),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpParams>({
+    resolver: yupResolver(schema),
+  });
+
+  const { mutate: signUp, isLoading } = useSignUp(
+    () => {
+      signIn(undefined, { callbackUrl: "/" });
+      toast.success("Sign up successfully");
+    },
+    () => {
+      toast.error("Something went wrong while signing up");
     }
-  };
+  );
+
+  const onSubmit = (values: SignUpParams) => signUp(values);
 
   return (
-    <main className="flex items-center justify-center h-screen bg-gray-100">
-      <form className="w-full max-w-sm bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">Create Your Account</h1>
-        
-        <TextInput
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="mb-4"
-        />
-        <TextInput
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="mb-4"
-        />
-        <TextInput
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          className="mb-6"
-        />
-        
-        <Button type="submit" onClick={handleSignUp} className="w-full bg-blue-600 hover:bg-blue-700 transition-all text-white font-semibold">
-          Sign Up
-        </Button>
-      </form>
-    </main>
+    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          Sign in to your account
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <FormInput
+            label="User Name"
+            name="username"
+            control={control}
+            error={errors.username}
+          />
+          <FormInput
+            label="Password"
+            name="password"
+            type="password"
+            control={control}
+            error={errors.password}
+          />
+          <FormInput
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            control={control}
+            error={errors.confirmPassword}
+          />
+          <div>
+            <Button type="submit" className="!w-full" loading={isLoading}>
+              Sign Up
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-}
+};
 
-
+export default SignUp;
