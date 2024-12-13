@@ -9,7 +9,7 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import Header from '../header';
 import Footer from '../footer';
-
+import { Suspense } from 'react';
 const CACHE_NAME = 'audio-cache';
 
 interface Episode {
@@ -82,6 +82,7 @@ async function getAudioUrl(url: string): Promise<string> {
 }
 
 export default function PlayerPage() {
+    
     const searchParams = useSearchParams();
     const rssfeed = searchParams.get("rssfeed");
     const indexParam = searchParams.get("index");
@@ -154,13 +155,17 @@ export default function PlayerPage() {
     return (
         <div className="min-h-screen bg-gray-100 text-gray-800">
             <Header />
+            <br/><br/><br/><br/>
             <main className="p-6 flex justify-center items-center">
+            
                 {episodes.length > 0 ? (
+                    
                     <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between" style={{ width: '600px', height: '200px' }}>
                         <div className="flex-grow">
                             <h2 className="text-2xl font-bold text-blue-600 mb-4">{episodes[currentEpisodeIndex]?.title}</h2>
                             {audioURL && <AudioPlayer src={audioURL} />}
                         </div>
+                        <br/><br/>
                         <div className="flex justify-between mt-4">
                             <Button color="primary" onClick={handleBackToHome} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center">
                                 <FaHome className="mr-2" /> Home
@@ -171,6 +176,7 @@ export default function PlayerPage() {
                             <Button color="primary" onClick={handleDownload} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center">
                                 <FaDownload className="mr-2" /> Download
                             </Button>
+                            
                             <Button color="primary" onClick={handleNextEpisode} disabled={currentEpisodeIndex === episodes.length - 1} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center">
                                 Next <FaStepForward className="ml-2" />
                             </Button>
@@ -180,6 +186,7 @@ export default function PlayerPage() {
                     <p className="text-lg text-gray-600">Loading episodes...</p>
                 )}
             </main>
+            <br/><br/><br/><br/><br/><br/><br/><br/>
             <Footer />
         </div>
     );

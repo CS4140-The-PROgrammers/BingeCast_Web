@@ -15,16 +15,16 @@ export default function HomePage() {
     router.push(`/player?rssfeed=${encodeURIComponent(rssFeedUrl)}&index=${index}`);
   };
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // useEffect(() => {
+  //   const savedTheme = localStorage.getItem('theme');
+  //   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
+  //   if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+  //     document.documentElement.classList.add('dark');
+  //   } else {
+  //     document.documentElement.classList.remove('dark');
+  //   }
+  // }, []);
 
   const toggleTheme = () => {
     const isDarkMode = document.documentElement.classList.contains('dark');
@@ -51,20 +51,26 @@ export default function HomePage() {
         </div>
         <h1 className="text-5xl font-bold mb-4">Welcome to BingeCast</h1>
         <p className="text-2xl">Your favorite podcasts, all in one place.</p>
+        <br/><br/>
+        <a href="/home/">
+        <button  className="px-4 py-2 rounded bg-blue-700 text-white hover:bg-blue-800">
+          Get Started 
+        </button>
+        </a>
       </section>
-
+      
       <section className="py-16 ">
         <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-10">Featured Episodes</h2>
+          <h2 className="text-4xl font-bold mb-10">Featured Podcasts</h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-4">
             <div
               className="bg-white rounded-lg shadow-lg p-6 transition-all hover:shadow-xl hover:scale-105 cursor-pointer"
               onClick={() => navigateToEpisode(0)}
             >
-              <img src="/public/file.svg" alt="Podcast 1" className="mb-4 w-full h-48 object-cover rounded" />
-              <h3 className="text-2xl font-bold mb-2">Podcast Episode 1</h3>
-              <p className="text-gray-600">A short description of the oldest podcast episode.</p>
+              <img src="https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/24/6d/f5/246df581-fb17-d179-d607-5bbceccf0507/mza_7321194002536810327.jpg/1200x1200bf.webp" alt="Podcast 1" className="mb-4 w-full h-48 object-cover rounded" />
+              <h3 className="text-2xl font-bold mb-2">Auto Alex Podcast</h3>
+              <p className="text-gray-600">The automotive adventures you see on YouTube only tell half the story. So join us, as we discuss failed road trips, unbelievable car deals and WTF moments!</p>
             </div>
             <div
               className="bg-white rounded-lg shadow-lg p-6 transition-all hover:shadow-xl hover:scale-105 cursor-pointer"

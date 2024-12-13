@@ -22,26 +22,27 @@ export default function Header() {
     };
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // const savedTheme = 'light';
+        // const savedTheme = localStorage.getItem('theme');
+        // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        // if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        //   document.documentElement.classList.add('dark');
+        // } else {
+        //   document.documentElement.classList.remove('dark');
+        // }
       }, []);
 
-      const toggleTheme = () => {
-        const isDarkMode = document.documentElement.classList.contains('dark');
-        if (isDarkMode) {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-        } else {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        }
-      };
+      // const toggleTheme = () => {
+      //   const isDarkMode = document.documentElement.classList.contains('dark');
+      //   if (isDarkMode) {
+      //     document.documentElement.classList.remove('dark');
+      //     localStorage.setItem('theme', 'light');
+      //   } else {
+      //     document.documentElement.classList.add('dark');
+      //     localStorage.setItem('theme', 'dark');
+      //   }
+      // };
     //<img src="/favicon.svg" className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
 
     //<Dropdown.Item onClick={handleSignOut}>Sign Out</Dropdown.Item>
@@ -49,9 +50,9 @@ export default function Header() {
         <Navbar fluid rounded>
             <Navbar.Brand href="/">
                 
-                <span className="self-center whitespace-nowrap text-xl font-semibold text-blue">BingeCast</span>
+                <span className="self-center whitespace-nowrap text-xl font-semibold text-black">BingeCast</span>
             </Navbar.Brand>
-            <div className="flex md:order-2">
+            {/* <div className="flex md:order-2">
             <button
       onClick={toggleTheme}
       style={{
@@ -83,7 +84,7 @@ export default function Header() {
             <Navbar.Collapse>
                 <Navbar.Link href="/" active>Home</Navbar.Link>
                 <Navbar.Link href="/home">User Home</Navbar.Link>
-            </Navbar.Collapse>
+            </Navbar.Collapse> */}
         </Navbar>
     );
 }
