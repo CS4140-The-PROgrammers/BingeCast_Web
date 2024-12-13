@@ -1,7 +1,14 @@
+import {
+  refreshToken,
+  signIn,
+  toSession,
+  toToken,
+} from "@/app/models/accounts";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const handler = NextAuth({
+  secret: process.env.AUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,17 +20,18 @@ const handler = NextAuth({
         if (!credentials || !credentials?.username || !credentials?.password) {
           return null;
         }
-        
-        // 1. implement sign-in logic here
-        return null
+
+        return signIn({
+          email: credentials?.username,
+          password: credentials?.password,
+        });
       },
     }),
   ],
   callbacks: {
     async jwt({ token, account, user }) {
       if (user) {
-        // 2. parse from sign in response to token
-        return null
+        return toToken(user);
       }
 
       if (new Date() < new Date(token.expiredAt)) {
@@ -31,8 +39,11 @@ const handler = NextAuth({
       }
 
       try {
-        // 3. implement renew token here
-        return null
+        const response = await refreshToken({
+          token: token.refreshToken,
+        });
+
+        return toToken(response);
       } catch (error) {
         return {
           ...token,
@@ -41,8 +52,7 @@ const handler = NextAuth({
       }
     },
     async session({ session, token }) {
-      // 4. parse from token to session
-      return null
+      return toSession(token, session);
     },
   },
 });
